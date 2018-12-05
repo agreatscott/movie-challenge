@@ -10,14 +10,57 @@ Download the .Net Core sdk here https://dotnet.microsoft.com/download
 movie-challenge was developed with .Net Core 2.1
 
 ### Config
-movie-challenge uses ```appsettings.json``` for configuration settings. It must match the same JSON format as the sample provided.
+movie-challenge uses ```appsettings.json``` for configuration settings. It must match the same JSON format as the sample provided (and copied below).
 
 Open/Close times must be provided for every day of the week in HH:MM 24-hour format.
 
-SetupTimes provides configuration for time required to setup venue after opening and to clean individual theaters between showings.
+SetupTimes provides configuration for time required to setup venue after opening and to clean individual theaters between showings. These times are in minutes.
 
-InputFileHeaders relates to the first line of the input file. This configuration serves to match the data columns with data fields. The order here need not match the input file header order (but the input file header order must match the input file data order, obviously).
-
+InputFileHeaders relates to the first line of the input file (which is normally where headers are located). This configuration serves to match the data columns with data fields. The order here need not match the input file header order (but the input file header order must match the input file data order, obviously).
+```
+{
+    "HoursOfOperation": {
+        "Monday": {
+            "Open": "8:00",
+            "Close": "23:00"
+        },
+        "Tuesday": {
+            "Open": "8:00",
+            "Close": "23:00"
+        },
+        "Wednesday": {
+            "Open": "8:00",
+            "Close": "23:00"
+        },
+        "Thursday": {
+            "Open": "8:00",
+            "Close": "23:00"
+        },
+        "Friday": {
+            "Open": "10:30",
+            "Close": "23:30"
+        },
+        "Saturday": {
+            "Open": "10:30",
+            "Close": "23:30"
+        },
+        "Sunday": {
+            "Open": "10:30",
+            "Close": "23:30"
+        }
+    },
+    "SetupTimes": {
+        "StartOfDaySetup": "60",
+        "PostShowingCleanup": "35"
+    },
+    "InputFileHeaders": {
+        "MovieTitle": "Movie Title",
+        "ReleaseYear": "Release Year",
+        "Rating": "MPAA Rating",
+        "RunTimeMinutes": "Run Time"
+    }
+}
+```
 ### Input file
 movie-challenge relies on a txt file for data input. It should be passed on the command line as the first argument. 
 A sample input file is provided as ```input.txt```, copied below.
