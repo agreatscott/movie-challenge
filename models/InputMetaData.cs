@@ -12,7 +12,6 @@ namespace MoviesChallenge.Models
         {
             foreach (MovieDataField dataField in Enum.GetValues(typeof(MovieDataField)))
             {
-                //Enum.TryParse<MovieDataField>(value, out MovieDataField movieDataField);
                 if (dataField != MovieDataField.UnknownOrInvalidField)
                 {
                     this.MetaDataMap[dataField] = new MetaDataItem();
@@ -29,29 +28,27 @@ namespace MoviesChallenge.Models
             return this.MetaDataMap[movieDataField];
 
         }
-        public void setMetaDataHeaderValue(MovieDataField movieDataField, string valueHeader)
+        private void setMetaDataHeaderValue(MovieDataField movieDataField, string valueHeader)
         {
             if (movieDataField == MovieDataField.UnknownOrInvalidField)
             {
                 throw new ArgumentException("invalid movie data field");
             }
-            this.MetaDataMap[movieDataField].ValueHeader = valueHeader;
+            this.MetaDataMap[movieDataField].FieldHeader = valueHeader;
         }
-        public void setMetaDataIndexValue(MovieDataField movieDataField, int valueIndex)
+        private void SetMetaDataIndexValue(MovieDataField movieDataField, int valueIndex)
         {
             if (movieDataField == MovieDataField.UnknownOrInvalidField)
             {
                 throw new ArgumentException("invalid movie data field");
             }
-            this.MetaDataMap[movieDataField].ValueIndex = valueIndex;
+            this.MetaDataMap[movieDataField].FieldIndex = valueIndex;
         }
-
-
-        public MovieDataField getMovieDataFieldFromHeaderValue(string headerValue) /* this assumes that header values are unique */
+        public MovieDataField GetMovieDataFieldFromHeaderValue(string headerValue) /* this assumes that header values are unique */
         {
             foreach (KeyValuePair<MovieDataField, MetaDataItem> entry in this.MetaDataMap)
             {
-                if (entry.Value != null && entry.Value.ValueHeader == headerValue)
+                if (entry.Value != null && entry.Value.FieldHeader == headerValue)
                 {
                     return entry.Key;
                 }
@@ -62,12 +59,39 @@ namespace MoviesChallenge.Models
         {
             foreach (KeyValuePair<MovieDataField, MetaDataItem> entry in this.MetaDataMap)
             {
-                if (entry.Value != null && entry.Value.ValueIndex == indexValue)
+                if (entry.Value != null && entry.Value.FieldIndex == indexValue)
                 {
                     return entry.Key;
                 }
             }
             throw new ArgumentException("invalid movie data field");
+        }
+
+
+        public void MapConfigAndInputMetaData(IDictionary<string, string> configInputFileHeaders, string headerInputLine)
+        {
+            MapInputValueHeadersFromConfig(configInputFileHeaders);
+            GetInputDataIndicies(headerInputLine);
+        }
+
+        private void MapInputValueHeadersFromConfig(IDictionary<string, string> configInputFileHeaders)
+        {
+            foreach (string key in configInputFileHeaders.Keys)
+            {
+                Enum.TryParse(key, out MovieDataField dataField);
+                setMetaDataHeaderValue(dataField, configInputFileHeaders[key]);
+            }
+        }
+
+        private void GetInputDataIndicies(string headerInputLine)
+        {
+            //tell me which index in a line of input is each value of MovieDataItem
+            var lineArr = headerInputLine.Split(',');
+            for (int index = 0; index < lineArr.Length; index++)
+            {
+                MovieDataField dataField = GetMovieDataFieldFromHeaderValue(lineArr[index].Trim());
+                SetMetaDataIndexValue(dataField, index);
+            }
         }
     }
 }

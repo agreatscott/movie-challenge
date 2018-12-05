@@ -1,13 +1,33 @@
+using System;
+using System.Collections.Generic;
+using MoviesChallenge.Models.Enums;
+
 namespace MoviesChallenge.Models.Config
 {
     class WeeklyHoursOfOperation
     {
-        public DayHoursOfOperation Monday { get; set; }
-        public DayHoursOfOperation Tuesday { get; set; }
-        public DayHoursOfOperation Wednesday { get; set; }
-        public DayHoursOfOperation Thursday { get; set; }
-        public DayHoursOfOperation Friday { get; set; }
-        public DayHoursOfOperation Saturday { get; set; }
-        public DayHoursOfOperation Sunday { get; set; }
+        public IDictionary<DayOfWeek, DayHoursOfOperation> HoursMap { get; } = new Dictionary<DayOfWeek, DayHoursOfOperation>();
+
+        public WeeklyHoursOfOperation(IDictionary<string, DayHoursOfOperation> configInput)
+        {
+            if (configInput.Count != 7)
+            {
+                throw new ArgumentException("Invalid config");
+            }
+            foreach (string key in configInput.Keys)
+            {
+                Enum.TryParse(key, out DayOfWeek weekday);
+                HoursMap.Add(weekday, configInput[key]);
+            }
+        }
+
+        public void ConfigureForSetupTime(double startOfDaySetup)
+        {
+            TimeSpan startOfDaySetupMins = TimeSpan.FromMinutes(startOfDaySetup);
+            foreach (KeyValuePair<DayOfWeek, DayHoursOfOperation> entry in HoursMap)
+            {
+                entry.Value.Open += startOfDaySetupMins;
+            }
+        }
     }
 }

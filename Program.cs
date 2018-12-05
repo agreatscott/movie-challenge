@@ -10,70 +10,52 @@ namespace MoviesChallenge
 {
     class Program
     {
+        const string APP_SETTINGS_FILENAME = "appsettings.json";
+        const string ST_CONFIG = "SetupTimes";
+        const string HOO_CONFIG = "HoursOfOperation";
+        const string IFH_CONFIG = "InputFileHeaders";
+        SetupTimes SetupTimes;
+        WeeklyHoursOfOperation WeeklyHoursOfOperation;
+        InputMetaData InputMetaData = new InputMetaData();
+        List<MovieDataItem> MovieDataItems = new List<MovieDataItem>();
+
         static void Main(string[] args)
         {
+            Program program = new Program();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+                .AddJsonFile(APP_SETTINGS_FILENAME, optional: false, reloadOnChange: false);
             IConfiguration configuration = builder.Build();
 
-            var weeklyHoursOfOperation = configuration.GetSection("HoursOfOperation").Get<WeeklyHoursOfOperation>();
-            var configInputFileHeaders = configuration.GetSection("InputFileHeaders").Get<Dictionary<string, string>>();
+            /* Retrieve config data */
+            program.WeeklyHoursOfOperation = new WeeklyHoursOfOperation(configuration.GetSection(HOO_CONFIG).Get<Dictionary<string, DayHoursOfOperation>>());
+            program.SetupTimes = configuration.GetSection(ST_CONFIG).Get<SetupTimes>();
+            program.WeeklyHoursOfOperation.ConfigureForSetupTime(Int64.Parse(program.SetupTimes.StartOfDaySetup));
 
-            var inputMetaData = new InputMetaData();
-            mapInputValueHeaders(configInputFileHeaders, inputMetaData); // var x = Enum.GetName(typeof(MovieDataField), 0);
-
-
+            /* Read input file. */
             using (var inputStream = File.OpenText(args[0]))
             {
+                /* Read input column headers from config, read header indicies from top line of input file */
+                program.InputMetaData.MapConfigAndInputMetaData(configuration.GetSection(IFH_CONFIG).Get<Dictionary<string, string>>(), inputStream.ReadLine());
+
+                /* Create data object for each movie and calculate showtimes for each day of the week */
                 string line;
-                getInputDataIndicies(inputStream.ReadLine(), inputMetaData);
-
-
                 while ((line = inputStream.ReadLine()) != null)
                 {
-                    var lineInputArray = line.Split(',');
-                    var dataItem = new MovieDataItem();
-                    for (int i = 0; i < lineInputArray.Length; i++)
-                    {
-                        if (i == inputMetaData.getMetaDataValue(MovieDataField.RunTimeMinutes).ValueIndex)
-                        {
-                            //convert time to minutes
-                            dataItem.setValue(MovieDataField.RunTimeMinutes, TimeSpan.Parse(lineInputArray[i]).TotalMinutes.ToString());
-                        }
-                        else
-                        {
-                            //find the data item whose valueIndex matches i, assign the value to it
-                            var movieDataField = inputMetaData.getMovieDataFieldFromIndexValue(i);
-                            dataItem.setValue(movieDataField, lineInputArray[i].Trim());
-
-
-                        }
-                    }
-                    Console.WriteLine(line);
+                    MovieDataItem dataItem = new MovieDataItem(line, program.InputMetaData);
+                    dataItem.CalculateShowtimes(Int16.Parse(program.SetupTimes.PostShowingCleanup), program.WeeklyHoursOfOperation);
+                    program.MovieDataItems.Add(dataItem);
                 }
             }
-            Console.WriteLine("Hello World!");
-        }
 
-        static void getInputDataIndicies(string line, InputMetaData inputMetaData)
-        {
-            //tell me which index in a line of input is each value of MovieDataItem
-            var lineArr = line.Split(',');
-            for (int index = 0; index < lineArr.Length; index++)
+            /* Print showtime info for current day */
+            DayOfWeek day = DateTime.Today.DayOfWeek;
+            Console.WriteLine(day.ToString() + " " + DateTime.Today.ToString("d") + "\n");
+            program.MovieDataItems.ForEach(movie =>
             {
-                MovieDataField dataField = inputMetaData.getMovieDataFieldFromHeaderValue(lineArr[index].Trim());
-                inputMetaData.setMetaDataIndexValue(dataField, index);
-            }
-        }
-
-        static void mapInputValueHeaders(Dictionary<string, string> configInputFileHeaders, InputMetaData inputMetaData)
-        {
-            foreach (string key in configInputFileHeaders.Keys)
-            {
-                Enum.TryParse(key, out MovieDataField dataField);
-                inputMetaData.setMetaDataHeaderValue(dataField, configInputFileHeaders[key]);
-            }
+                Console.WriteLine(movie.ToString(day));
+            });
         }
     }
 }
