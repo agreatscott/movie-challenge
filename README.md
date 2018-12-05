@@ -80,7 +80,7 @@ The Proposal, 2009, PG-13, 1:48
 Unit tests found in ```MoviesChallenge.Test``` can be run using the command ```dotnet test``` from that directory.
 
 ## Usage
-movie-challenge can be run via the command ```dotnet run input.txt``` where ```input.txt``` is the input file.
+movie-challenge can be run via the command ```dotnet run input.txt``` in the ```MoviesChallenge``` directory where ```input.txt``` is the input file.
 
 The output will be printed to the console, as requested. 
 
