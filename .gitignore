@@ -1,2 +1,4 @@
-bin
-obj
+MoviesChallenge/bin
+MoviesChallenge/obj
+MoviesChallenge.Test/obj
+MoviesChallenge.Test/bin

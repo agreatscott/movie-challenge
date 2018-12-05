@@ -4,7 +4,7 @@ using MoviesChallenge.Models.Enums;
 
 namespace MoviesChallenge.Models.Config
 {
-    class WeeklyHoursOfOperation
+    public class WeeklyHoursOfOperation
     {
         public IDictionary<DayOfWeek, DayHoursOfOperation> HoursMap { get; } = new Dictionary<DayOfWeek, DayHoursOfOperation>();
 
