@@ -4,7 +4,7 @@ using MoviesChallenge.Models.Enums;
 
 namespace MoviesChallenge.Models
 {
-    class InputMetaData
+    public class InputMetaData
     {
         private Dictionary<MovieDataField, MetaDataItem> MetaDataMap { get; } = new Dictionary<MovieDataField, MetaDataItem>();
 

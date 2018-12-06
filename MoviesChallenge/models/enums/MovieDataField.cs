@@ -1,6 +1,6 @@
 namespace MoviesChallenge.Models.Enums
 {
-    enum MovieDataField
+    public enum MovieDataField
     {
         UnknownOrInvalidField = 0, //default value
         MovieTitle,

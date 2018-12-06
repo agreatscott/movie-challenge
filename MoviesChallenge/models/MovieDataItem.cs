@@ -5,7 +5,7 @@ using MoviesChallenge.Models.Enums;
 
 namespace MoviesChallenge.Models
 {
-    class MovieDataItem
+    public class MovieDataItem
     {
         private IDictionary<MovieDataField, string> DataMap { get; } = new Dictionary<MovieDataField, string>();
         public IDictionary<DayOfWeek, List<MovieShowtime>> ShowtimesMap { get; } = new Dictionary<DayOfWeek, List<MovieShowtime>>();
